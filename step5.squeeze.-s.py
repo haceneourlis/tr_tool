@@ -15,7 +15,7 @@ def delete_char(line , right_arg):
         case "a-z"|"[:lower:]":
             return ccdel("islower")
         case "[:alnum:]":
-            return ccdel("isalphanum")
+            return ccdel("isalnum")
         
         case "[:alpha:]":
             return ccdel("isalpha")
@@ -73,6 +73,42 @@ def transform_line(line, left_arg, right_arg):
         case _:
             return line.replace(left_arg,right_arg)
 
+
+def which_squeeze(function,line):
+    
+    structured_line = ""  
+    length = len(line)
+    for i in range(0, length - 1):
+        if( not(getattr(line[i+1], function)() and getattr(line[i], function)() ) ):
+            structured_line += line[i]
+    if(length>0):
+        structured_line += line[length-1]
+
+    return structured_line
+# rodododoodoooo  a hh     thunaaaa
+def squeeze(line , right_arg):
+    
+    if(right_arg == "[:space:]"):
+        structured_line = which_squeeze("isspace",line)
+
+    elif(right_arg == "[:blank:]"):
+        structured_line = which_squeeze("isblank",line)
+
+    else:
+        structured_line = ""              
+        length = len(line)
+        char_to_squeeze = list(right_arg)
+        for i in range(0, length - 1):
+            if(line[i] in char_to_squeeze):
+                if(line[i+1] != line[i]):
+                    structured_line += line[i]
+            else:
+                structured_line += line[i]
+
+        structured_line += line[length-1]
+
+
+    return structured_line
 def main():
     if len(sys.argv) < 3:
         print("Usage: python script.py letter1 letter2")
@@ -85,7 +121,7 @@ def main():
         try:
             line = input()
          
-            # check if left_arg is an option , liike : -s -d or even -sd 
+            # check if left_arg is an option , like : -s -d or even -sd 
 
             # tr -sd string1 string2
             if(len(left_arg) > 1 and left_arg[0] =="-"):
@@ -97,23 +133,12 @@ def main():
                     structured_line = ""                  
                     #is we have the -s flag , we squeez
                     if(options[k] =="s"):
-                        length = len(line)
-                        char_to_squeeze = list(sys.argv[k+1])
-                        for i in range(0, length - 1):
-                            if(line[i] in char_to_squeeze):
-                                if(line[i+1] != line[i]):
-                                    structured_line += line[i]
-                            else:
-                                structured_line += line[i]
-
-                        structured_line += line[length-1]
-
+                        structured_line = squeeze(line,sys.argv[k+1])
                     #if we have a flag for deletion : -d we do this 
                     if(options[k] =="d"):
                         structured_line= delete_char(line,sys.argv[k+1])
-
-                    if(structured_line != ""):
-                        line = structured_line
+                        
+                    line = structured_line
                 print(structured_line)
             else:
                 print(transform_line(line, left_arg, right_arg))
