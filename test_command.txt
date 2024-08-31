@@ -1,0 +1,2 @@
+% seq 1 3000 | xargs -Inone cat test.txt | tr "[:upper:]" "[:lower:]" > result.txt
+
